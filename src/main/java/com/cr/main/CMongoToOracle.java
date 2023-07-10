@@ -33,9 +33,10 @@ public class CMongoToOracle {
 			MongoDatabase database = mongoClient.getDatabase(dbName);
 			MongoCollection<Document> list = database.getCollection(cName);
 	
-			Bson statusCheckFilter = Filters.or(Filters.eq("status", "SUBMITTED"),Filters.eq("status", "FAILED"));
+			//Bson statusCheckFilter = Filters.or(Filters.eq("status", "SUBMITTED"),Filters.eq("status", "FAILED"));
+			Bson statusCheckFilter = Filters.or(Filters.eq("status", "SUBMITTED"),Filters.eq("status", "FAILED"),Filters.eq("status", "SLOT BOOKED"));
 			for (Document doc : list.find(statusCheckFilter)) {
-				logger.info("in for-loop after document filter based on status,SUBMITTED or FAILED");
+				logger.info("in for-loop after document filter based on status,SUBMITTED or FAILED or SLOT BOOKED ");
 				doc.remove("_id");
 				doc.remove("$numberLong");
 
