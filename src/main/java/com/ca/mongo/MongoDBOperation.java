@@ -8,18 +8,18 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.LogManager;
 
-import org.bson.Document;
-import org.bson.conversions.Bson;
-
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
+import org.bson.Document;
+import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
 
 import com.ca.data.KafkaMessage;
 import com.ca.data.MemberData;
-import com.cr.main.CMain;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mongodb.bulk.BulkWriteResult;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -185,8 +185,9 @@ public class MongoDBOperation {
 			 Bson query = new Document("applicationId",new Document("$eq",applicationId));
 			 
 			 
-
-			for (Document doc : list.find(query)) {
+FindIterable<Document> d=list.find(query);
+			//for (Document doc : list.find(query)) {
+for (Document doc : d) {
 				doc.remove("_id");
 				doc.remove("$numberLong");
 			
@@ -258,5 +259,34 @@ public class MongoDBOperation {
 		}
 
 	}
+	
+	public static List<String> getPartyDetailsCollectionDataFromID(String url, String dbName, String cName, String id) {
+
+		   System.out.println("Started connection to MongoDB to fetch the collections");
+
+		   System.out.println("URL ::" +url);
+		   System.out.println("DB Name ::" +dbName);
+		   System.out.println("Collection Name ::" +cName);
+		   System.out.println("******************************************************");
+
+		   ArrayList<String> mess = new ArrayList<>();
+		   try (MongoClient mongoClient = MongoClients.create(url)) {
+		      MongoDatabase database = mongoClient.getDatabase(dbName);
+		      MongoCollection<Document> list = database.getCollection(cName);
+
+		     // Bson query = new Document("_id",new Document("$eq",id));
+		     
+
+		      Bson query = new Document("_id",new Document("$eq",new ObjectId(id)));
+
+		      for (Document doc : list.find(query)) {
+		         doc.remove("_id");
+		         doc.remove("$numberLong");
+		         mess.add(doc.toJson());
+		      }
+		   }
+		   return mess;
+		}
+
 
 }

@@ -2,6 +2,7 @@ package com.ca.oracle;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,70 @@ public class ODocumentDetails {
 
 	//final static Logger logger = Logger.getLogger(ODocumentDetails.class.getName());
 	final static Logger logger = LogManager.getLogger(ODocumentDetails.class.getClass());
+	
+	public static boolean findPresenationRecordById(String documentId) throws SQLException {
+		Connection con=null;
+		boolean result=false;
+
+		logger.info("in findPresenationRecordById method of OracleDocumentDetails-Presentation table ");
+		con=OracleDBUtil.getConnection();
+		 String query = "SELECT * FROM PRESENTATION WHERE id = ?"; 
+        
+         PreparedStatement pstmt = con.prepareStatement(query);
+         pstmt.setString(1, documentId); // Set the ID parameter in the query
+
+         // Execute the query and get the ResultSet
+         ResultSet rs = pstmt.executeQuery();
+
+         // Check if the ResultSet has any data (i.e., if the record exists)
+        // result=rs.next();
+        // logger.info("value of result:::::"+result);
+         if (rs.next()) {
+           // logger.info("Select query Record with ID " + documentId + " exists.");
+        	 logger.info("in true block");
+             result=true;
+         } else {
+            // System.out.println("Select query Record with ID " + documentId + " does not exist.");
+        	 logger.info("in false block");
+             result=false;     }
+         rs.close();
+         pstmt.close();
+         con.close();
+		return result;
+
+	}
+	
+	public static boolean findPreRegistrationCCARecordById(String documentId) throws SQLException {
+		Connection con=null;
+		boolean result=false;
+
+		logger.info("in findPreRegistrationCCARecordById method of OracleDocumentDetails-PreRegistrationCCA table ");
+		con=OracleDBUtil.getConnection();
+		 String query = "SELECT * FROM pre_registration_cca WHERE id = ?"; 
+        
+         PreparedStatement pstmt = con.prepareStatement(query);
+         pstmt.setString(1, documentId); // Set the ID parameter in the query
+
+         // Execute the query and get the ResultSet
+         ResultSet rs = pstmt.executeQuery();
+
+         // Check if the ResultSet has any data (i.e., if the record exists)
+        // result=rs.next();
+        // logger.info("value of result:::::"+result);
+         if (rs.next()) {
+           // logger.info("Select query Record with ID " + documentId + " exists.");
+        	 logger.info("in true block");
+             result=true;
+         } else {
+            // System.out.println("Select query Record with ID " + documentId + " does not exist.");
+        	 logger.info("in false block");
+             result=false;     }
+         rs.close();
+         pstmt.close();
+         con.close();
+		return result;
+
+	}
 
 	public static boolean singleInsertPresentation(DocumentDetails mData) throws SQLException {
 		Connection con = null;
@@ -69,9 +134,10 @@ public class ODocumentDetails {
 			
 			logger.info("DutyfeeData object loaded properly:" + mData.getDutyFeeData());
 			if (mData.getDutyFeeData() != null) {
-				pstmt.setInt(10, mData.getDutyFeeData().getRf_p());
-				pstmt.setInt(11, mData.getDutyFeeData().getSd_p());
-				pstmt.setInt(12, mData.getDutyFeeData().getTd_p());
+				//pstmt.setInt(10, mData.getDutyFeeData().getRf_p());
+				pstmt.setDouble(10, mData.getDutyFeeData().getRf_p());
+				pstmt.setDouble(11, mData.getDutyFeeData().getSd_p());
+				pstmt.setDouble(12, mData.getDutyFeeData().getTd_p());
 			} else {
 				pstmt.setInt(10, 0);
 				pstmt.setInt(11, 0);
@@ -81,10 +147,11 @@ public class ODocumentDetails {
 		
 			//pstmt.setString(14, mData.getDocumentId().substring(0, 14));
 			pstmt.setString(14, mData.getDocumentId());
-			
+			logger.info("before batch");
 			logger.info("All Batch statements added successfully - Presentation table");
 
 			result = pstmt.execute();
+			logger.info("after result"+result);
 			logger.info("Row inserted into PRESENTATION table " + result + "with ID" + mData.getDocumentId());
 			con.commit();
 			pstmt.close();

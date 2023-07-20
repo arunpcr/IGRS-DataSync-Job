@@ -19,6 +19,13 @@ public class PartyRepresentDetails {
 	public String currentAddress;
 	public String address;
 	public int seqNumber;
+	public boolean isPresenter;
+	public boolean isPresenter() {
+		return isPresenter;
+	}
+	public void setPresenter(boolean isPresenter) {
+		this.isPresenter = isPresenter;
+	}
 	public CreatedAt getCreatedAt() {
 		return createdAt;
 	}
@@ -130,8 +137,10 @@ public class PartyRepresentDetails {
 				+ ", documentId=" + documentId + ", relationType=" + relationType + ", relationName=" + relationName
 				+ ", age=" + age + ", panNoOrForm60or61=" + panNoOrForm60or61 + ", tan=" + tan + ", aadhaar=" + aadhaar
 				+ ", email=" + email + ", phone=" + phone + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt
-				+ ", currentAddress=" + currentAddress + ", address=" + address + ", seqNumber=" + seqNumber + "]";
+				+ ", currentAddress=" + currentAddress + ", address=" + address + ", seqNumber=" + seqNumber
+				+ ", isPresenter=" + isPresenter + "]";
 	}
+	
 	
 	
 }

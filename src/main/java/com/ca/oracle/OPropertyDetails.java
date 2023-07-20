@@ -2,15 +2,47 @@ package com.ca.oracle;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Objects;
+
 import org.apache.log4j.Logger;
 
-import com.ca.data.PartyDetails;
+import com.ca.data.ExtentList;
 import com.ca.data.PropertyDetails;
 
 public class OPropertyDetails {
 	
 	static Logger logger = Logger.getLogger(OPropertyDetails.class.getName());
+	public static boolean findPropertyDetailsRecordById(String documentId, int seqNo) throws SQLException {
+		Connection con=null;
+		boolean result = false;
+
+		logger.info("in findPropertyDetailsRecordById method of OPropertyDetails-SCHEDULEENTRY table ");
+		con=OracleDBUtil.getConnection();
+		 String query = "SELECT * FROM SCHEDULE_ENTRY WHERE ID = ? AND SCHEDULE_NO=?"; 
+        
+         PreparedStatement pstmt = con.prepareStatement(query);
+         pstmt.setString(1, documentId); // Set the ID parameter in the query
+         pstmt.setInt(2, seqNo);
+
+         // Execute the query and get the ResultSet
+         ResultSet rs = pstmt.executeQuery();
+        // result=rs.next();
+
+         // Check if the ResultSet has any data (i.e., if the record exists)
+         if (rs.next()) {
+             logger.info("schedule_entry record exists" + documentId + " exists."+seqNo);
+          	 logger.info("in true block");
+               result=true;
+           } else {
+              // System.out.println("Select query Record with ID " + documentId + " does not exist.");
+          	 logger.info("in false block");
+               result=false;     }
+         con.close();
+  		return result;
+
+  	}
 	
 	public static boolean singleInsertScheduleEntry(PropertyDetails mData) throws SQLException {
 		
@@ -286,6 +318,92 @@ public static boolean singleDeleteStructureDetails(String applicationId) throws 
 		con.close();
 		return result;
 	}
+
+public static boolean singleDeleteAdangalDetails(String applicationId) throws SQLException {
+	Connection con=OracleDBUtil.getConnection();
+
+	boolean result = false;
+
+	logger.info("in singleDeleteAdangalDetails method of OraclePropertyDetails-Adangal table ");
+
+	PreparedStatement pstmt = con.prepareStatement("DELETE FROM PDE_ADANGAL_DETAILS where ID=?");
+	pstmt.setString(1, applicationId);
+	result=pstmt.execute();
+	logger.info("Single row deleted from PDE_ADANGAL_DETAILS  table " + result + "with ID"+applicationId);
+	pstmt.close();
+	con.close();
+	return result;
+}
+
+public static boolean singleInsertAdangalDetails(PropertyDetails mData) throws SQLException {
+
+	logger.info("%%%in singleInsertAdangalDetails method of OPropertyDetails class%%%%%%%%%%%" + mData);
+
+
+	Connection con=OracleDBUtil.getConnection();
+
+	logger.info("after Con in singleInsertAdangalDetails method of OraclePropertyDetails-AdangalDetails table ");
+	//PreparedStatement pstmt = null;
+	boolean result = false;
+	try {
+
+		logger.info("Single Insert started AD for the Documents from Property_details collection " + mData.toString());
+		String sqlQuery = "insert into PDE_ADANGAL_DETAILS(ID, S_LP_NO, KHATA_NO, VILLAGE_CODE, TOTAL_EXTENT, SCHEDULE_NO, SELLING_EXTENT) values (?, ?, ?, ?, ?, ?, ?)";
+		con.setAutoCommit(false);
+		PreparedStatement pstmt = con.prepareStatement(sqlQuery);
+		logger.info("zero size insert into PDE_ADANGAL_DETAILS where getExtentListSize is greateer than 0");
+		
+		if (Objects.nonNull(mData.getExtentList()) && mData.getExtentList().size() > 0) {
+			logger.info("IN IF condition where list size is greater than 0......");
+			for (ExtentList list : mData.getExtentList()) {
+				logger.info("ExtentList object:::::::::::::::"+list.toString());
+				logger.info("Conveyed extent acers ijaya:"+list.getConveyedExtentAcers());
+				logger.info("Total extent acers:"+list.getTotalExtentAcers());
+				pstmt.setString(1, mData.getApplicationId());
+				logger.info("survey No for this object*****:"+list.getSurvayNo());
+				pstmt.setString(2, list.getSurvayNo());
+				pstmt.setInt(3, list.getKhataNumber());
+				pstmt.setString(4, mData.getVillageCode());
+
+				logger.info("Total Extent from extentlist:"+list.getTotalExtentAcers()+"*((((((("+list.getTotalExtentCents());
+				pstmt.setFloat(5, Float.parseFloat(list.getTotalExtentAcers() +"."+list.getTotalExtentCents()));
+
+				logger.info("Conveyed Extent from extentlist:"+list.getConveyedExtentAcers()+"*((((((("+list.getConveyedExtentCents());
+				pstmt.setFloat(7, Float.parseFloat(list.getConveyedExtentAcers() +"."+list.getConveyedExtentCents()));
+			
+				pstmt.setInt(6, mData.getSeqNumber());	    	
+					result = pstmt.execute();
+				logger.info("Row inserted into AdangalDetails table " + result + "with ID" + mData.getApplicationId());
+
+			}
+		}
+		//pstmt.setFloat(5, TOTAL_EXTENT_VALUE);
+
+		con.commit();
+		pstmt.close();
+
+
+		logger.info("All Batch statements added successfully - AdangalDetails table");
+	}catch (SQLException e) {
+		result=true;
+		logger.error("AdangalDetails table could not be inserted-SQL", e);
+	} 
+	catch (Exception e) {
+		result=true;
+		logger.error("AdangalDetails table could not be inserted-Exception", e);
+	} 
+	finally {
+		if (con != null) {
+			try {
+				con.close();
+			} catch (Exception e) {
+				result=true;
+				logger.error("AdangalDetails table could not be inserted-Finally", e);
+			} 
+		}
+	}
+	return result;
+}
 	     
 
 }

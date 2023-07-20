@@ -1,5 +1,7 @@
 package com.ca.data;
 
+import java.util.List;
+
 public class PropertyDetails {
 
 	String propertyId;
@@ -12,6 +14,15 @@ public class PropertyDetails {
 	String southBoundry;
 	String landUseCode;
 	String lpmNo;
+	public List<ExtentList> ExtentList;
+
+	public List<ExtentList> getExtentList() {
+		return ExtentList;
+	}
+
+	public void setExtentList(List<ExtentList> extentList) {
+		ExtentList = extentList;
+	}
 
 	public String getLpmNo() {
 		return lpmNo;

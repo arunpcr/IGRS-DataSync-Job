@@ -2,6 +2,7 @@ package com.ca.oracle;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.apache.log4j.Logger;
 
@@ -10,6 +11,33 @@ import com.ca.data.PartyDetails;
 public class OPartyDetails {
 	
 	static Logger logger = Logger.getLogger(OPartyDetails.class.getName());
+	
+	public static boolean findPartyDetailsRecordById(String documentId) throws SQLException {
+		Connection con=null;
+		boolean result = true;
+
+		logger.info("in findPresenationRecordById method of OracleDocumentDetails-Presentation table ");
+		con=OracleDBUtil.getConnection();
+		 String query = "SELECT * FROM EXECUTANTS_CLAIMANT WHERE id = ?"; 
+        
+         PreparedStatement pstmt = con.prepareStatement(query);
+         pstmt.setString(1, documentId); // Set the ID parameter in the query
+
+         // Execute the query and get the ResultSet
+         ResultSet rs = pstmt.executeQuery();
+         //result=rs.next();
+
+         // Check if the ResultSet has any data (i.e., if the record exists)
+        if (rs.next()) {
+            logger.info("Select query EXECUTANTS_CLAIMANT with ID " + documentId + " exists.");
+             result=true;
+         } else {
+             System.out.println("Select query EXECUTANTS_CLAIMANT with ID" + documentId + " does not exist.");
+             result=false;}   
+        con.close();
+		return result;
+
+	}
 
 	public static boolean singlePartyDetailsInsert(PartyDetails mData) throws SQLException {
 		boolean result = false;
